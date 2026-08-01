@@ -1,0 +1,2402 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121212" />
+    <meta
+      name="description"
+      content="Liederraten mit Spotify: Playlist auswählen und automatisch alle 30 Sekunden zum nächsten Song wechseln."
+    />
+    <title>SongSprint V6.5 Beta – Richtige Lösung überspringt sofort</title>
+    <!-- SongSprint Android Voice Button Beta V6.5 2026-08-01 -->
+    <style>
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --bg: #0b0b0d;
+  --surface: #17171b;
+  --surface-2: #222228;
+  --text: #f7f7f8;
+  --muted: #aaaab5;
+  --green: #1ed760;
+  --green-dark: #159447;
+  --danger: #ff6b6b;
+  --warning: #ffd166;
+  --border: rgba(255, 255, 255, 0.09);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(30, 215, 96, 0.16), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(108, 92, 231, 0.12), transparent 30rem),
+    var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 32px;
+}
+
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.eyebrow,
+.step,
+.stat-label {
+  margin: 0;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 8px;
+  font-size: clamp(2.7rem, 7vw, 5.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.065em;
+}
+
+h2 {
+  margin-bottom: 8px;
+}
+
+.subtitle,
+.help,
+#mysteryArtist,
+footer {
+  color: var(--muted);
+}
+
+.subtitle {
+  max-width: 650px;
+  margin-bottom: 0;
+  font-size: 1.1rem;
+}
+
+.badge {
+  flex: 0 0 auto;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.badge--online {
+  border-color: rgba(30, 215, 96, 0.35);
+  background: rgba(30, 215, 96, 0.12);
+  color: #8bffb3;
+}
+
+.badge--offline {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(23, 23, 27, 0.92);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.setup-card,
+.controls-card,
+.stage-card {
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.setup-card {
+  max-width: 850px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.section-heading h2 {
+  margin: 4px 0 0;
+}
+
+label {
+  display: block;
+  margin: 18px 0 8px;
+  font-weight: 750;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 0 14px;
+}
+
+input:focus,
+select:focus {
+  border-color: rgba(30, 215, 96, 0.7);
+  box-shadow: 0 0 0 3px rgba(30, 215, 96, 0.12);
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.input-row--compact {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 18px;
+  color: var(--text);
+  font-weight: 800;
+  transition:
+    transform 120ms ease,
+    filter 120ms ease,
+    background 120ms ease;
+}
+
+.button:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.button--primary {
+  background: var(--green);
+  color: #07150c;
+}
+
+.button--secondary {
+  background: #34343c;
+}
+
+.button--ghost {
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+.button--small {
+  min-height: 38px;
+  padding: 0 13px;
+}
+
+.help {
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+code {
+  color: #a9ffc7;
+  overflow-wrap: anywhere;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.8fr) minmax(420px, 1.35fr);
+  gap: 22px;
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.voice-panel {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.voice-panel__head,
+.voice-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.voice-panel__head strong {
+  font-size: 1rem;
+}
+
+.voice-status-row {
+  justify-content: flex-start;
+  margin-top: 13px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.voice-indicator {
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #666670;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.04);
+}
+
+.voice-indicator--ready {
+  background: var(--green);
+}
+
+.voice-indicator--listening {
+  background: var(--green);
+  animation: voicePulse 1.1s ease-in-out infinite;
+}
+
+.voice-indicator--guess {
+  background: var(--warning);
+  animation: voicePulse 0.8s ease-in-out infinite;
+}
+
+.voice-indicator--error {
+  background: var(--danger);
+}
+
+.voice-guess-button {
+  width: 100%;
+  min-height: 66px;
+  margin-top: 14px;
+  background: var(--warning);
+  color: #17120a;
+  font-size: 1.08rem;
+}
+
+@keyframes voicePulse {
+  50% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 8px rgba(30, 215, 96, 0.08);
+  }
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stats-row > div {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.stats-row strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.35rem;
+}
+
+.timer {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #2b2b31;
+}
+
+.timer__progress {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), #a4ff6a);
+  transition: width 0.9s linear;
+}
+
+.mystery-card {
+  display: grid;
+  place-items: center;
+  min-height: 340px;
+  padding: 30px 18px;
+  text-align: center;
+}
+
+.vinyl {
+  display: grid;
+  place-items: center;
+  width: 165px;
+  aspect-ratio: 1;
+  margin-bottom: 22px;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle, #16161a 0 5px, #24242a 6px 8px),
+    #111;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 18px 40px rgba(0, 0, 0, 0.35);
+  animation: spin 8s linear infinite;
+  animation-play-state: paused;
+}
+
+body.game-running .vinyl {
+  animation-play-state: running;
+}
+
+.vinyl__label {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--green);
+  color: #07150c;
+  font-size: 1.65rem;
+  font-weight: 900;
+}
+
+.game-status {
+  margin-bottom: 8px;
+  color: var(--green);
+  font-weight: 800;
+}
+
+.mystery-card h2 {
+  margin-bottom: 8px;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.guess-form {
+  margin-top: 4px;
+}
+
+.feedback {
+  min-height: 26px;
+  margin-top: 14px;
+  font-weight: 800;
+}
+
+.feedback--correct {
+  color: #79fca7;
+}
+
+.feedback--wrong {
+  color: var(--warning);
+}
+
+.feedback--error {
+  color: var(--danger);
+}
+
+.answer-card {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.answer-card strong {
+  display: block;
+  margin-top: 5px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid rgba(30, 215, 96, 0.45);
+  border-radius: 999px;
+  background: rgba(30, 215, 96, 0.12);
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.86rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 860px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .app-shell {
+    width: min(100% - 20px, 1180px);
+    padding-top: 28px;
+  }
+
+  .hero,
+  .section-heading {
+    align-items: flex-start;
+  }
+
+  .hero {
+    flex-direction: column;
+  }
+
+  .input-row,
+  .input-row--compact,
+  .control-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-row {
+    gap: 7px;
+  }
+
+  .stats-row > div {
+    padding: 10px;
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Spotify Liederraten</p>
+          <h1>SongSprint</h1>
+          <p class="subtitle">
+            30 Sekunden hören, „Stopp“ rufen und Titel oder Künstler sprechen.
+          </p>
+        </div>
+        <div class="header-badges">
+          <div class="version-badge">V6.5 Beta · Richtig = weiter</div>
+          <div id="connectionBadge" class="badge badge--offline">Nicht verbunden</div>
+        </div>
+      </header>
+
+      <section id="setupPanel" class="card setup-card">
+        <div class="section-heading">
+          <div>
+            <p class="step">Schritt 1</p>
+            <h2>Spotify verbinden</h2>
+          </div>
+        </div>
+
+        <label for="clientId">Spotify Client ID</label>
+        <div class="input-row">
+          <input
+            id="clientId"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Deine Client ID aus dem Spotify Developer Dashboard"
+          />
+          <button id="loginButton" class="button button--primary" type="button">
+            Mit Spotify anmelden
+          </button>
+        </div>
+        <p class="help">
+          Als Redirect URI im Spotify Dashboard exakt
+          <code id="redirectUriText"></code> eintragen. In das Feld oben gehört nur die
+          <strong>Client ID</strong>, niemals das Client Secret.
+        </p>
+        <div id="setupFeedback" class="feedback" role="status"></div>
+      </section>
+
+      <section id="gamePanel" class="game-layout hidden" aria-live="polite">
+        <aside class="card controls-card">
+          <div class="section-heading">
+            <div>
+              <p class="step">Schritt 2</p>
+              <h2>Spiel vorbereiten</h2>
+            </div>
+            <button id="logoutButton" class="button button--ghost button--small" type="button">
+              Abmelden
+            </button>
+          </div>
+
+          <label for="playlistSelect">Playlist</label>
+          <select id="playlistSelect">
+            <option value="">Playlists werden geladen …</option>
+          </select>
+
+          <label for="deviceSelect">Spotify-Gerät</label>
+          <div class="input-row input-row--compact">
+            <select id="deviceSelect">
+              <option value="">Geräte werden geladen …</option>
+            </select>
+            <button id="refreshButton" class="button button--secondary" type="button">
+              Aktualisieren
+            </button>
+          </div>
+
+          <label for="roundDuration">Sekunden pro Song</label>
+          <input id="roundDuration" type="number" min="10" max="120" value="30" />
+
+          <div class="voice-panel">
+            <div class="voice-panel__head">
+              <strong>Sprachmodus</strong>
+              <button id="voiceToggleButton" class="button button--ghost button--small" type="button">
+                Aktivieren
+              </button>
+            </div>
+            <div class="voice-status-row" aria-live="polite">
+              <span id="voiceIndicator" class="voice-indicator" aria-hidden="true"></span>
+              <span id="voiceStatus">Ausgeschaltet</span>
+            </div>
+            <button id="voiceGuessButton" class="button voice-guess-button hidden" type="button" disabled>
+              Stopp &amp; sprechen
+            </button>
+            <p class="help">
+              Tippe während des Songs auf <strong>„Stopp &amp; sprechen“</strong>. Song und Timer pausieren zuerst;
+              danach hört das Mikrofon genau einen Tipp. Bei einer richtigen Antwort startet sofort der nächste Song; bei einer falschen Antwort läuft der aktuelle Song bis zum Zeitlimit weiter. Kein dauerhaftes Zuhören im Hintergrund.
+            </p>
+          </div>
+
+          <div class="control-grid">
+            <button id="startButton" class="button button--primary" type="button">
+              Spiel starten
+            </button>
+            <button id="pauseButton" class="button button--secondary" type="button" disabled>
+              Pausieren
+            </button>
+            <button id="nextButton" class="button button--secondary" type="button" disabled>
+              Nächster Song
+            </button>
+            <button id="resetButton" class="button button--ghost" type="button" disabled>
+              Zurücksetzen
+            </button>
+          </div>
+
+          <p class="help">
+            Öffne Spotify auf dem gewählten Gerät. Es muss in der Geräteliste sichtbar sein.
+          </p>
+        </aside>
+
+        <section class="card stage-card">
+          <div class="stats-row">
+            <div>
+              <span class="stat-label">Runde</span>
+              <strong id="roundNumber">0</strong>
+            </div>
+            <div>
+              <span class="stat-label">Punkte</span>
+              <strong id="score">0</strong>
+            </div>
+            <div>
+              <span class="stat-label">Verbleibend</span>
+              <strong><span id="countdown">30</span>s</strong>
+            </div>
+          </div>
+
+          <div class="timer" aria-label="Runden-Timer">
+            <div id="timerProgress" class="timer__progress"></div>
+          </div>
+
+          <div class="mystery-card">
+            <div class="vinyl" aria-hidden="true">
+              <div class="vinyl__label">?</div>
+            </div>
+            <p id="gameStatus" class="game-status">Wähle Playlist und Gerät.</p>
+            <h2 id="mysteryTitle">Welcher Song ist das?</h2>
+            <p id="mysteryArtist">Titel und Interpret bleiben bis zur Auflösung verborgen.</p>
+          </div>
+
+          <form id="guessForm" class="guess-form">
+            <label for="guessInput">Dein Tipp – gesprochen oder eingetippt</label>
+            <div class="input-row">
+              <input
+                id="guessInput"
+                type="text"
+                autocomplete="off"
+                placeholder="Songtitel oder Interpret eingeben"
+                disabled
+              />
+              <button id="guessButton" class="button button--primary" type="submit" disabled>
+                Prüfen
+              </button>
+            </div>
+          </form>
+
+          <div id="feedback" class="feedback" role="status"></div>
+
+          <div class="answer-card">
+            <span class="stat-label">Letzte Auflösung</span>
+            <strong id="lastAnswer">Noch keine Runde beendet.</strong>
+          </div>
+        </section>
+      </section>
+
+      <footer>
+        Diese Beta speichert Client ID und Spotify-Tokens nur lokal. Der Android-Automatikmodus kann das aktive Spotify-Gerät auch steuern, wenn es vorübergehend nicht in der Geräteliste erscheint.
+      </footer>
+    </main>
+
+    <script type="module">
+const SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize";
+const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
+const SPOTIFY_API_URL = "https://api.spotify.com/v1";
+const STORAGE_PREFIX = "songsprint_";
+const AUTO_DEVICE_VALUE = "__active_device__";
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const REDIRECT_URI = `${window.location.origin}${window.location.pathname}`;
+const SCOPES = [
+  "playlist-read-private",
+  "playlist-read-collaborative",
+  "user-read-playback-state",
+  "user-read-currently-playing",
+  "user-modify-playback-state",
+];
+
+const state = {
+  accessToken: localStorage.getItem(`${STORAGE_PREFIX}access_token`) || "",
+  refreshToken: localStorage.getItem(`${STORAGE_PREFIX}refresh_token`) || "",
+  expiresAt: Number(localStorage.getItem(`${STORAGE_PREFIX}expires_at`) || 0),
+  timerId: null,
+  roundEndsAt: 0,
+  remaining: 30,
+  duration: 30,
+  running: false,
+  paused: false,
+  round: 0,
+  score: 0,
+  currentTrack: null,
+  guessedThisRound: false,
+  selectedDeviceId: localStorage.getItem(`${STORAGE_PREFIX}last_device_id`) || "",
+  selectedDeviceName: localStorage.getItem(`${STORAGE_PREFIX}last_device_name`) || "",
+  selectedPlaylistUri: "",
+  playlistItemCount: 0,
+  playlistTracks: [],
+  randomTracks: [],
+  randomTrackCursor: 0,
+  randomPositions: [],
+  randomPositionCursor: 0,
+  randomMode: "direct",
+  lastPlayedTrackId: "",
+  lastPlayedPosition: -1,
+  busySkipping: false,
+  voiceSupported: Boolean(SpeechRecognitionAPI),
+  voiceEnabled: localStorage.getItem(`${STORAGE_PREFIX}voice_enabled`) === "true",
+  voiceMode: "off",
+  voiceRecognition: null,
+  voiceRestartTimer: null,
+  voiceAwaitingGuess: false,
+  voiceHandlingStop: false,
+  voiceLastTranscript: "",
+};
+
+const elements = {
+  connectionBadge: document.querySelector("#connectionBadge"),
+  setupPanel: document.querySelector("#setupPanel"),
+  gamePanel: document.querySelector("#gamePanel"),
+  clientId: document.querySelector("#clientId"),
+  loginButton: document.querySelector("#loginButton"),
+  logoutButton: document.querySelector("#logoutButton"),
+  redirectUriText: document.querySelector("#redirectUriText"),
+  playlistSelect: document.querySelector("#playlistSelect"),
+  deviceSelect: document.querySelector("#deviceSelect"),
+  roundDuration: document.querySelector("#roundDuration"),
+  voiceToggleButton: document.querySelector("#voiceToggleButton"),
+  voiceGuessButton: document.querySelector("#voiceGuessButton"),
+  voiceIndicator: document.querySelector("#voiceIndicator"),
+  voiceStatus: document.querySelector("#voiceStatus"),
+  refreshButton: document.querySelector("#refreshButton"),
+  startButton: document.querySelector("#startButton"),
+  pauseButton: document.querySelector("#pauseButton"),
+  nextButton: document.querySelector("#nextButton"),
+  resetButton: document.querySelector("#resetButton"),
+  roundNumber: document.querySelector("#roundNumber"),
+  score: document.querySelector("#score"),
+  countdown: document.querySelector("#countdown"),
+  timerProgress: document.querySelector("#timerProgress"),
+  gameStatus: document.querySelector("#gameStatus"),
+  mysteryTitle: document.querySelector("#mysteryTitle"),
+  mysteryArtist: document.querySelector("#mysteryArtist"),
+  guessForm: document.querySelector("#guessForm"),
+  guessInput: document.querySelector("#guessInput"),
+  guessButton: document.querySelector("#guessButton"),
+  feedback: document.querySelector("#feedback"),
+  setupFeedback: document.querySelector("#setupFeedback"),
+  lastAnswer: document.querySelector("#lastAnswer"),
+};
+
+elements.redirectUriText.textContent = REDIRECT_URI;
+elements.clientId.value = localStorage.getItem(`${STORAGE_PREFIX}client_id`) || "";
+
+function setVoiceStatus(message, mode = "off") {
+  elements.voiceStatus.textContent = message;
+  elements.voiceIndicator.className = "voice-indicator";
+  if (mode && mode !== "off") elements.voiceIndicator.classList.add(`voice-indicator--${mode}`);
+}
+
+function updateVoiceUi() {
+  if (!state.voiceSupported) {
+    state.voiceEnabled = false;
+    elements.voiceToggleButton.disabled = true;
+    elements.voiceToggleButton.textContent = "Nicht unterstützt";
+    elements.voiceGuessButton.classList.add("hidden");
+    setVoiceStatus("Dieser Browser bietet keine Spracherkennung.", "error");
+    return;
+  }
+
+  elements.voiceToggleButton.disabled = false;
+  elements.voiceToggleButton.textContent = state.voiceEnabled ? "Deaktivieren" : "Aktivieren";
+  elements.voiceGuessButton.classList.toggle("hidden", !state.voiceEnabled);
+  elements.voiceGuessButton.textContent = state.voiceAwaitingGuess
+    ? "Tipp erneut sprechen"
+    : "Stopp & sprechen";
+  elements.voiceGuessButton.disabled =
+    !state.voiceEnabled ||
+    !state.running ||
+    state.busySkipping ||
+    state.guessedThisRound ||
+    state.voiceHandlingStop ||
+    state.voiceMode === "guess" ||
+    (state.paused && !state.voiceAwaitingGuess);
+
+  if (!state.voiceEnabled) {
+    setVoiceStatus("Ausgeschaltet", "off");
+  } else if (state.voiceMode === "guess") {
+    setVoiceStatus("Sag jetzt Titel oder Künstler …", "guess");
+  } else if (state.voiceAwaitingGuess) {
+    setVoiceStatus("Song pausiert – bereit für deinen Tipp", "guess");
+  } else if (state.running && state.paused) {
+    setVoiceStatus("Spiel ist manuell pausiert", "ready");
+  } else if (state.running) {
+    setVoiceStatus("Bereit: Tippe auf „Stopp & sprechen“", "ready");
+  } else {
+    setVoiceStatus("Aktiv – das Mikrofon startet erst nach Tastendruck", "ready");
+  }
+}
+
+function clearVoiceRestartTimer() {
+  if (state.voiceRestartTimer) {
+    clearTimeout(state.voiceRestartTimer);
+    state.voiceRestartTimer = null;
+  }
+}
+
+function stopVoiceRecognition(nextMode = "off") {
+  clearVoiceRestartTimer();
+  state.voiceMode = nextMode;
+  const recognition = state.voiceRecognition;
+  state.voiceRecognition = null;
+  if (recognition) {
+    recognition.onend = null;
+    recognition.onerror = null;
+    recognition.onresult = null;
+    try {
+      recognition.abort();
+    } catch {
+      // Eine bereits beendete Erkennung kann gefahrlos ignoriert werden.
+    }
+  }
+  updateVoiceUi();
+}
+
+function scheduleWakeListening() {
+  // V6.5: Absichtlich kein dauerhaftes Zuhören. Das Mikrofon startet nur
+  // nach einem bewussten Tastendruck, nachdem Spotify pausiert wurde.
+  clearVoiceRestartTimer();
+  updateVoiceUi();
+}
+
+function containsStopCommand(transcript) {
+  const words = normalize(transcript).split(" ").filter(Boolean);
+  if (!words.length || words.length > 3) return false;
+  return words.some((word) => word === "stopp" || word === "stop");
+}
+
+function createRecognition({ continuous = false, interimResults = false } = {}) {
+  if (!SpeechRecognitionAPI) return null;
+  const recognition = new SpeechRecognitionAPI();
+  recognition.lang = "de-DE";
+  recognition.continuous = continuous;
+  recognition.interimResults = interimResults;
+  recognition.maxAlternatives = 1;
+  return recognition;
+}
+
+function startWakeListening() {
+  if (
+    !state.voiceSupported ||
+    !state.voiceEnabled ||
+    !state.running ||
+    state.paused ||
+    state.busySkipping ||
+    document.hidden ||
+    state.voiceRecognition
+  ) {
+    updateVoiceUi();
+    return;
+  }
+
+  const recognition = createRecognition({ continuous: true, interimResults: true });
+  if (!recognition) return;
+  state.voiceRecognition = recognition;
+  state.voiceMode = "wake";
+  updateVoiceUi();
+
+  recognition.onstart = () => {
+    if (state.voiceRecognition === recognition) {
+      state.voiceMode = "wake";
+      updateVoiceUi();
+    }
+  };
+
+  recognition.onresult = (event) => {
+    for (let index = event.resultIndex; index < event.results.length; index += 1) {
+      const transcript = event.results[index]?.[0]?.transcript?.trim() || "";
+      if (!transcript) continue;
+      state.voiceLastTranscript = transcript;
+      if (containsStopCommand(transcript) && !state.voiceHandlingStop) {
+        handleVoiceStop();
+        return;
+      }
+    }
+  };
+
+  recognition.onerror = (event) => {
+    if (state.voiceRecognition !== recognition) return;
+    const fatal = event.error === "not-allowed" || event.error === "service-not-allowed";
+    if (fatal) {
+      state.voiceEnabled = false;
+      localStorage.setItem(`${STORAGE_PREFIX}voice_enabled`, "false");
+      stopVoiceRecognition("off");
+      setVoiceStatus("Mikrofonzugriff wurde verweigert.", "error");
+      setFeedback("Erlaube Chrome den Mikrofonzugriff und aktiviere den Sprachmodus erneut.", "error");
+    } else if (event.error !== "aborted") {
+      setVoiceStatus("Spracherkennung wird neu gestartet …", "ready");
+    }
+  };
+
+  recognition.onend = () => {
+    if (state.voiceRecognition === recognition) state.voiceRecognition = null;
+    if (state.voiceMode === "wake") scheduleWakeListening(650);
+  };
+
+  try {
+    recognition.start();
+  } catch {
+    state.voiceRecognition = null;
+    scheduleWakeListening(850);
+  }
+}
+
+async function handleVoiceStop() {
+  if (
+    !state.voiceEnabled ||
+    !state.running ||
+    state.paused ||
+    state.busySkipping ||
+    state.guessedThisRound ||
+    state.voiceHandlingStop
+  ) return;
+
+  state.voiceHandlingStop = true;
+  stopVoiceRecognition("processing");
+  state.remaining = Math.max(0, Math.ceil((state.roundEndsAt - Date.now()) / 1000));
+  updateStats();
+  updateVoiceUi();
+
+  try {
+    await runPlayerCommand((deviceId) =>
+      spotifyFetch(playerEndpoint("/me/player/pause", deviceId), {
+        method: "PUT",
+      }),
+    );
+    state.paused = true;
+    state.voiceAwaitingGuess = true;
+    document.body.classList.remove("game-running");
+    elements.pauseButton.textContent = "Fortsetzen";
+    elements.gameStatus.textContent = "Song pausiert – sag jetzt Titel oder Künstler!";
+    enableGuessing(true);
+    updateVoiceUi();
+
+    // Kurze Pause, damit Android den Audiofokus nach dem Spotify-Stopp
+    // vollständig an Chrome übergeben kann.
+    await sleep(500);
+    startGuessListening();
+  } catch (error) {
+    state.voiceAwaitingGuess = false;
+    state.paused = false;
+    state.roundEndsAt = Date.now() + state.remaining * 1000;
+    document.body.classList.add("game-running");
+    setFeedback(error.message, "error");
+  } finally {
+    state.voiceHandlingStop = false;
+    updateVoiceUi();
+  }
+}
+
+function handleVoiceButtonClick() {
+  if (!state.voiceEnabled || !state.running || state.busySkipping) return;
+  if (state.voiceAwaitingGuess && state.paused) {
+    startGuessListening();
+    return;
+  }
+  handleVoiceStop();
+}
+
+function startGuessListening() {
+  if (
+    !state.voiceSupported ||
+    !state.voiceEnabled ||
+    !state.running ||
+    !state.paused ||
+    !state.voiceAwaitingGuess ||
+    state.voiceRecognition
+  ) {
+    updateVoiceUi();
+    return;
+  }
+
+  const recognition = createRecognition({ continuous: false, interimResults: false });
+  if (!recognition) return;
+  let receivedResult = false;
+  state.voiceRecognition = recognition;
+  state.voiceMode = "guess";
+  updateVoiceUi();
+
+  recognition.onresult = (event) => {
+    const result = event.results?.[event.resultIndex]?.[0];
+    const transcript = result?.transcript?.trim() || "";
+    if (!transcript) return;
+    receivedResult = true;
+    state.voiceLastTranscript = transcript;
+    elements.guessInput.value = transcript;
+    state.voiceRecognition = null;
+    state.voiceMode = "processing";
+    updateVoiceUi();
+    evaluateGuess(transcript, { autoAdvance: true, source: "voice" });
+  };
+
+  recognition.onerror = (event) => {
+    if (state.voiceRecognition !== recognition) return;
+    state.voiceRecognition = null;
+    state.voiceMode = "awaiting";
+    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      state.voiceEnabled = false;
+      localStorage.setItem(`${STORAGE_PREFIX}voice_enabled`, "false");
+      setVoiceStatus("Mikrofonzugriff wurde verweigert.", "error");
+    } else if (event.error !== "aborted") {
+      setFeedback("Ich habe keinen Tipp verstanden. Tippe ihn ein oder drücke „Tipp erneut sprechen“.", "wrong");
+    }
+    enableGuessing(true);
+    updateVoiceUi();
+  };
+
+  recognition.onend = () => {
+    if (state.voiceRecognition === recognition) state.voiceRecognition = null;
+    if (!receivedResult && state.voiceMode === "guess") {
+      state.voiceMode = "awaiting";
+      setFeedback("Ich habe keinen Tipp verstanden. Tippe ihn ein oder starte die Aufnahme erneut.", "wrong");
+      enableGuessing(true);
+      updateVoiceUi();
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch {
+    state.voiceRecognition = null;
+    state.voiceMode = "awaiting";
+    setFeedback("Die Sprachaufnahme konnte nicht gestartet werden. Du kannst den Tipp eintippen.", "error");
+    enableGuessing(true);
+    updateVoiceUi();
+  }
+}
+
+async function primeVoicePermission() {
+  const recognition = createRecognition();
+  if (!recognition) throw new Error("Spracherkennung wird von diesem Browser nicht unterstützt.");
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    recognition.onstart = () => {
+      if (settled) return;
+      settled = true;
+      try { recognition.abort(); } catch {}
+      resolve();
+    };
+    recognition.onerror = (event) => {
+      if (settled) return;
+      settled = true;
+      reject(new Error(
+        event.error === "not-allowed" || event.error === "service-not-allowed"
+          ? "Mikrofonzugriff wurde verweigert. Erlaube ihn in den Chrome-Website-Einstellungen."
+          : `Mikrofon konnte nicht gestartet werden (${event.error}).`,
+      ));
+    };
+    try {
+      recognition.start();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+async function toggleVoiceMode() {
+  if (!state.voiceSupported) return;
+
+  if (state.voiceEnabled) {
+    state.voiceEnabled = false;
+    localStorage.setItem(`${STORAGE_PREFIX}voice_enabled`, "false");
+    stopVoiceRecognition("off");
+    setFeedback("Sprachmodus deaktiviert. Das Spiel funktioniert weiterhin manuell.");
+    updateVoiceUi();
+    return;
+  }
+
+  state.voiceEnabled = true;
+  localStorage.setItem(`${STORAGE_PREFIX}voice_enabled`, "true");
+  setFeedback("Sprachmodus aktiviert. Tippe während eines Songs auf „Stopp & sprechen“. Das Mikrofon startet erst nach dem Pausieren.");
+  updateVoiceUi();
+}
+
+function randomString(length = 64) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+  const values = crypto.getRandomValues(new Uint8Array(length));
+  return Array.from(values, (value) => chars[value % chars.length]).join("");
+}
+
+function cryptoRandomInt(maxExclusive) {
+  if (!Number.isInteger(maxExclusive) || maxExclusive <= 0) return 0;
+
+  const range = 0x100000000;
+  const limit = range - (range % maxExclusive);
+  const values = new Uint32Array(1);
+  do {
+    crypto.getRandomValues(values);
+  } while (values[0] >= limit);
+
+  return values[0] % maxExclusive;
+}
+
+function shuffleTracks(tracks) {
+  const shuffled = [...tracks];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = cryptoRandomInt(index + 1);
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function prepareRandomTracks(previousTrackId = state.lastPlayedTrackId) {
+  state.randomTracks = shuffleTracks(state.playlistTracks);
+
+  // Beim Start eines neuen Stapels nicht direkt denselben Song wie zuvor nehmen.
+  if (state.randomTracks.length > 1 && state.randomTracks[0]?.id === previousTrackId) {
+    const differentIndex = state.randomTracks.findIndex((track) => track.id !== previousTrackId);
+    if (differentIndex > 0) {
+      [state.randomTracks[0], state.randomTracks[differentIndex]] = [
+        state.randomTracks[differentIndex],
+        state.randomTracks[0],
+      ];
+    }
+  }
+
+  state.randomTrackCursor = 0;
+}
+
+function takeNextRandomTrack(previousTrackId = state.lastPlayedTrackId) {
+  if (
+    state.randomTracks.length !== state.playlistTracks.length ||
+    state.randomTrackCursor >= state.randomTracks.length
+  ) {
+    prepareRandomTracks(previousTrackId);
+  }
+
+  let track = state.randomTracks[state.randomTrackCursor];
+  state.randomTrackCursor += 1;
+
+  // Zusätzliche Absicherung gegen eine direkte Wiederholung.
+  if (
+    track?.id === previousTrackId &&
+    state.randomTrackCursor < state.randomTracks.length
+  ) {
+    const replacementIndex = state.randomTracks.findIndex(
+      (candidate, index) => index >= state.randomTrackCursor && candidate.id !== previousTrackId,
+    );
+    if (replacementIndex >= state.randomTrackCursor) {
+      const nextTrack = state.randomTracks[replacementIndex];
+      state.randomTracks[replacementIndex] = track;
+      track = nextTrack;
+    }
+  }
+
+  return track;
+}
+
+function prepareRandomPositions(itemCount, previousPosition = state.lastPlayedPosition) {
+  const count = Math.max(0, Number(itemCount) || 0);
+  state.randomPositions = shuffleTracks(Array.from({ length: count }, (_, index) => index));
+
+  if (
+    state.randomPositions.length > 1 &&
+    state.randomPositions[0] === previousPosition
+  ) {
+    const differentIndex = state.randomPositions.findIndex(
+      (position) => position !== previousPosition,
+    );
+    if (differentIndex > 0) {
+      [state.randomPositions[0], state.randomPositions[differentIndex]] = [
+        state.randomPositions[differentIndex],
+        state.randomPositions[0],
+      ];
+    }
+  }
+
+  state.randomPositionCursor = 0;
+}
+
+function takeNextRandomPosition(previousPosition = state.lastPlayedPosition) {
+  if (
+    state.randomPositions.length !== state.playlistItemCount ||
+    state.randomPositionCursor >= state.randomPositions.length
+  ) {
+    prepareRandomPositions(state.playlistItemCount, previousPosition);
+  }
+
+  const position = state.randomPositions[state.randomPositionCursor];
+  state.randomPositionCursor += 1;
+  return position;
+}
+
+function playlistIdFromUri(uri) {
+  const parts = String(uri || "").split(":");
+  return parts[0] === "spotify" && parts[1] === "playlist" ? parts[2] : "";
+}
+
+async function loadPlaylistTracks(playlistUri) {
+  const playlistId = playlistIdFromUri(playlistUri);
+  if (!playlistId) throw new Error("Die ausgewählte Playlist-Adresse ist ungültig.");
+
+  const tracks = [];
+  const seenIds = new Set();
+  let path = `/playlists/${encodeURIComponent(playlistId)}/items?limit=50&offset=0` +
+    `&fields=items(is_local,item(id,uri,type,name,artists(name))),next,total`;
+  let pages = 0;
+
+  while (path && pages < 20) {
+    const data = await spotifyFetch(path);
+    for (const entry of data?.items || []) {
+      const item = entry?.item || entry?.track;
+      if (entry?.is_local || !item || item.type !== "track" || !item.id || !item.uri) continue;
+      if (seenIds.has(item.id)) continue;
+      seenIds.add(item.id);
+      tracks.push({
+        id: item.id,
+        uri: item.uri,
+        name: item.name || "Unbekannter Titel",
+        artists: (item.artists || []).map((artist) => artist.name).filter(Boolean),
+      });
+    }
+    path = data?.next ? data.next.replace(SPOTIFY_API_URL, "") : "";
+    pages += 1;
+  }
+
+  if (!tracks.length) {
+    throw new Error(
+      "Spotify konnte keine spielbaren Songs aus dieser Playlist laden. Nutze am besten eine eigene Playlist.",
+    );
+  }
+
+  return tracks;
+}
+
+async function sha256(value) {
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+}
+
+function base64UrlEncode(buffer) {
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+}
+
+async function beginLogin() {
+  const clientId = elements.clientId.value.trim();
+  if (!clientId) {
+    setFeedback("Bitte zuerst eine Spotify Client ID eintragen.", "error");
+    elements.clientId.focus();
+    return;
+  }
+
+  localStorage.setItem(`${STORAGE_PREFIX}client_id`, clientId);
+
+  const verifier = randomString(96);
+  const challenge = base64UrlEncode(await sha256(verifier));
+  const authState = randomString(32);
+
+  sessionStorage.setItem(`${STORAGE_PREFIX}pkce_verifier`, verifier);
+  sessionStorage.setItem(`${STORAGE_PREFIX}oauth_state`, authState);
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    response_type: "code",
+    redirect_uri: REDIRECT_URI,
+    scope: SCOPES.join(" "),
+    code_challenge_method: "S256",
+    code_challenge: challenge,
+    state: authState,
+    show_dialog: "true",
+  });
+
+  window.location.assign(`${SPOTIFY_AUTH_URL}?${params.toString()}`);
+}
+
+async function handleOAuthCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  const returnedState = params.get("state");
+  const error = params.get("error");
+
+  if (error) {
+    throw new Error(`Spotify-Anmeldung abgebrochen: ${error}`);
+  }
+  if (!code) return false;
+
+  const expectedState = sessionStorage.getItem(`${STORAGE_PREFIX}oauth_state`);
+  const verifier = sessionStorage.getItem(`${STORAGE_PREFIX}pkce_verifier`);
+  const clientId = localStorage.getItem(`${STORAGE_PREFIX}client_id`);
+
+  if (!expectedState || returnedState !== expectedState) {
+    throw new Error("OAuth-State stimmt nicht überein. Bitte erneut anmelden.");
+  }
+  if (!verifier || !clientId) {
+    throw new Error("PKCE-Anmeldedaten fehlen. Bitte erneut anmelden.");
+  }
+
+  const body = new URLSearchParams({
+    client_id: clientId,
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: REDIRECT_URI,
+    code_verifier: verifier,
+  });
+
+  const response = await fetch(SPOTIFY_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+
+  const tokenText = await response.text();
+  let tokenData = null;
+  try {
+    tokenData = tokenText ? JSON.parse(tokenText) : null;
+  } catch {
+    throw new Error(
+      "Spotify hat bei der Anmeldung eine unerwartete Antwort geliefert. Bitte lösche die Websitedaten von SongSprint, prüfe Client ID und Redirect URI und melde dich erneut an.",
+    );
+  }
+
+  if (!response.ok) {
+    const detail = tokenData?.error_description || tokenData?.error || tokenText;
+    throw new Error(`Token konnte nicht geladen werden (${response.status}): ${detail}`);
+  }
+
+  if (!tokenData?.access_token) {
+    throw new Error("Spotify hat keinen gültigen Zugangsschlüssel geliefert. Bitte erneut anmelden.");
+  }
+
+  saveTokens(tokenData);
+  sessionStorage.removeItem(`${STORAGE_PREFIX}oauth_state`);
+  sessionStorage.removeItem(`${STORAGE_PREFIX}pkce_verifier`);
+  window.history.replaceState({}, document.title, REDIRECT_URI);
+  return true;
+}
+
+function saveTokens(tokenData) {
+  state.accessToken = tokenData.access_token;
+  state.refreshToken = tokenData.refresh_token || state.refreshToken;
+  state.expiresAt = Date.now() + Math.max(0, tokenData.expires_in - 60) * 1000;
+
+  localStorage.setItem(`${STORAGE_PREFIX}access_token`, state.accessToken);
+  if (state.refreshToken) {
+    localStorage.setItem(`${STORAGE_PREFIX}refresh_token`, state.refreshToken);
+  }
+  localStorage.setItem(`${STORAGE_PREFIX}expires_at`, String(state.expiresAt));
+}
+
+async function refreshAccessToken() {
+  const clientId = localStorage.getItem(`${STORAGE_PREFIX}client_id`);
+  if (!clientId || !state.refreshToken) {
+    throw new Error("Spotify-Sitzung ist abgelaufen. Bitte erneut anmelden.");
+  }
+
+  const body = new URLSearchParams({
+    client_id: clientId,
+    grant_type: "refresh_token",
+    refresh_token: state.refreshToken,
+  });
+
+  const response = await fetch(SPOTIFY_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+
+  const tokenText = await response.text();
+  let tokenData = null;
+  try {
+    tokenData = tokenText ? JSON.parse(tokenText) : null;
+  } catch {
+    clearAuth();
+    throw new Error("Spotify-Sitzung ist beschädigt. Bitte Websitedaten löschen und neu anmelden.");
+  }
+
+  if (!response.ok || !tokenData?.access_token) {
+    clearAuth();
+    throw new Error("Spotify-Sitzung konnte nicht erneuert werden. Bitte erneut anmelden.");
+  }
+
+  saveTokens(tokenData);
+  return state.accessToken;
+}
+
+async function getAccessToken() {
+  if (!state.accessToken) throw new Error("Nicht mit Spotify verbunden.");
+  if (Date.now() >= state.expiresAt) await refreshAccessToken();
+  return state.accessToken;
+}
+
+async function spotifyFetch(path, options = {}, retry = true) {
+  const token = await getAccessToken();
+  const response = await fetch(`${SPOTIFY_API_URL}${path}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.headers || {}),
+    },
+  });
+
+  if (response.status === 401 && retry) {
+    await refreshAccessToken();
+    return spotifyFetch(path, options, false);
+  }
+
+  if (response.status === 204 || response.status === 205) return null;
+
+  const responseText = await response.text();
+  let responseData = null;
+  if (responseText) {
+    try {
+      responseData = JSON.parse(responseText);
+    } catch {
+      // Erfolgreiche Player-Steuerbefehle liefern laut Spotify normalerweise 204 ohne Inhalt.
+      // Manche Android-/Netzwerk-Kombinationen reichen trotzdem einen harmlosen Textkörper durch.
+      // Bei erfolgreichen Schreibbefehlen kann dieser ignoriert werden.
+      const method = String(options.method || "GET").toUpperCase();
+      if (response.ok && method !== "GET") return null;
+
+      if (response.ok) {
+        throw new Error(
+          `Spotify-Antwort für ${path} war nicht lesbar. Bitte die Seite neu laden und erneut versuchen.`,
+        );
+      }
+    }
+  }
+
+  if (!response.ok) {
+    let message =
+      responseData?.error?.message ||
+      responseData?.error_description ||
+      `Spotify API Fehler (${response.status})`;
+
+    if (response.status === 404 && path.includes("/playlists/") && path.includes("/items")) {
+      message = "Spotify konnte die Playlist-Inhalte nicht direkt laden. SongSprint versucht den kompatiblen Zufallsmodus.";
+    } else if (response.status === 404 && path.startsWith("/me/player")) {
+      message = "Spotify konnte den Player-Befehl nicht einem Gerät zuordnen. SongSprint versucht automatisch das aktive Gerät.";
+    } else if (response.status === 404) {
+      message = `Spotify hat die angeforderte Ressource nicht gefunden (${path}).`;
+    } else if (response.status === 403 && path.includes("/playlists/") && path.includes("/items")) {
+      message = "Spotify erlaubt das direkte Auslesen dieser Playlist nicht. SongSprint wechselt auf den kompatiblen Zufallsmodus.";
+    } else if (response.status === 403 && path.includes("/me/player")) {
+      message = "Spotify hat die Wiedergabesteuerung verweigert. Prüfe Spotify Premium und ob dein Handy als aktives Gerät angezeigt wird.";
+    } else if (response.status === 403) {
+      message = "Spotify hat den Zugriff auf diese Funktion verweigert.";
+    } else if (response.status === 429) {
+      message = "Spotify-Limit erreicht. Bitte später erneut versuchen.";
+    }
+    const apiError = new Error(message);
+    apiError.status = response.status;
+    apiError.path = path;
+    apiError.details = responseData;
+    throw apiError;
+  }
+
+  return responseData;
+}
+
+async function loadSpotifyData() {
+  await Promise.all([loadPlaylists(), loadDevices()]);
+}
+
+async function loadPlaylists() {
+  elements.playlistSelect.disabled = true;
+  elements.playlistSelect.innerHTML = '<option value="">Playlists werden geladen …</option>';
+
+  const all = [];
+  let path = "/me/playlists?limit=50";
+  let pages = 0;
+  while (path && pages < 6) {
+    const data = await spotifyFetch(path);
+    all.push(...(data.items || []));
+    path = data.next ? data.next.replace(SPOTIFY_API_URL, "") : "";
+    pages += 1;
+  }
+
+  elements.playlistSelect.innerHTML = '<option value="">Playlist auswählen</option>';
+  for (const playlist of all) {
+    const option = document.createElement("option");
+    option.value = playlist.uri;
+    const count = playlist.items?.total ?? playlist.tracks?.total;
+    option.dataset.itemCount = Number.isFinite(count) ? String(count) : "";
+    option.textContent = `${playlist.name}${Number.isFinite(count) ? ` · ${count} Songs` : ""}`;
+    elements.playlistSelect.append(option);
+  }
+  elements.playlistSelect.disabled = false;
+}
+
+function rememberDevice(deviceId = "", deviceName = "") {
+  state.selectedDeviceId = deviceId || "";
+  state.selectedDeviceName = deviceName || "";
+  if (state.selectedDeviceId) {
+    localStorage.setItem(`${STORAGE_PREFIX}last_device_id`, state.selectedDeviceId);
+    localStorage.setItem(`${STORAGE_PREFIX}last_device_name`, state.selectedDeviceName);
+  }
+}
+
+function renderDeviceOptions(devices, selectedValue = AUTO_DEVICE_VALUE, fallback = null) {
+  elements.deviceSelect.innerHTML = "";
+
+  const automaticOption = document.createElement("option");
+  automaticOption.value = AUTO_DEVICE_VALUE;
+  automaticOption.dataset.deviceName = "";
+  automaticOption.textContent = "Automatisch · aktuell aktives Spotify-Gerät (empfohlen)";
+  automaticOption.selected = !selectedValue || selectedValue === AUTO_DEVICE_VALUE;
+  elements.deviceSelect.append(automaticOption);
+
+  const knownIds = new Set();
+  for (const device of devices) {
+    if (!device?.id) continue;
+    knownIds.add(device.id);
+    const option = document.createElement("option");
+    option.value = device.id;
+    option.dataset.deviceName = device.name || "";
+    option.textContent = `${device.name} · ${device.type}${device.is_active ? " · aktiv" : ""}${device.is_restricted ? " · eingeschränkt" : ""}`;
+    option.disabled = Boolean(device.is_restricted);
+    option.selected = device.id === selectedValue;
+    elements.deviceSelect.append(option);
+  }
+
+  if (fallback?.id && !knownIds.has(fallback.id)) {
+    const option = document.createElement("option");
+    option.value = fallback.id;
+    option.dataset.deviceName = fallback.name || "";
+    option.textContent = `${fallback.name || "Smartphone"} · zuletzt erkannt`;
+    option.selected = fallback.id === selectedValue;
+    elements.deviceSelect.append(option);
+  }
+
+  if (![...elements.deviceSelect.options].some((option) => option.selected)) {
+    automaticOption.selected = true;
+  }
+}
+
+async function getCurrentPlaybackDevice() {
+  try {
+    const playback = await spotifyFetch("/me/player");
+    const device = playback?.device;
+    if (device?.id && !device.is_restricted) return device;
+  } catch (error) {
+    if (![403, 404].includes(error?.status)) throw error;
+  }
+  return null;
+}
+
+async function loadDevices() {
+  const previousValue = elements.deviceSelect.value || state.selectedDeviceId || AUTO_DEVICE_VALUE;
+  const fallback = state.selectedDeviceId
+    ? { id: state.selectedDeviceId, name: state.selectedDeviceName || "Smartphone" }
+    : null;
+
+  elements.deviceSelect.disabled = true;
+  try {
+    const data = await spotifyFetch("/me/player/devices");
+    let devices = (data?.devices || []).filter((device) => device?.id);
+    let usableDevices = devices.filter((device) => !device.is_restricted);
+
+    if (!usableDevices.length) {
+      const currentDevice = await getCurrentPlaybackDevice();
+      if (currentDevice && !devices.some((device) => device.id === currentDevice.id)) {
+        devices = [currentDevice, ...devices];
+        usableDevices = [currentDevice, ...usableDevices];
+      }
+    }
+
+    const chosen =
+      usableDevices.find((device) => device.id === previousValue) ||
+      usableDevices.find((device) => device.id === state.selectedDeviceId) ||
+      usableDevices.find((device) => device.is_active) ||
+      null;
+
+    const selectedValue = chosen?.id || (previousValue === AUTO_DEVICE_VALUE ? AUTO_DEVICE_VALUE : AUTO_DEVICE_VALUE);
+    renderDeviceOptions(devices, selectedValue, fallback);
+
+    if (chosen) rememberDevice(chosen.id, chosen.name || "");
+
+    if (!usableDevices.length) {
+      setFeedback(
+        "Spotify zeigt das Handy gerade nicht in der Geräteliste. Der Automatikmodus bleibt verfügbar und steuert das aktuell aktive Spotify-Gerät.",
+      );
+    }
+    return devices;
+  } catch (error) {
+    renderDeviceOptions([], AUTO_DEVICE_VALUE, fallback);
+    setFeedback(
+      "Die Spotify-Geräteliste war nicht erreichbar. SongSprint verwendet den Android-Automatikmodus.",
+    );
+    return [];
+  } finally {
+    elements.deviceSelect.disabled = false;
+  }
+}
+
+async function refreshSelectedDevice(preferredId = state.selectedDeviceId, preferredName = state.selectedDeviceName) {
+  let devices = [];
+  try {
+    const data = await spotifyFetch("/me/player/devices");
+    devices = (data?.devices || []).filter((device) => device?.id);
+  } catch (error) {
+    if (![403, 404].includes(error?.status)) throw error;
+  }
+
+  let usableDevices = devices.filter((device) => !device.is_restricted);
+  const normalizedPreferredName = String(preferredName || "").trim().toLocaleLowerCase("de-DE");
+  let chosen =
+    usableDevices.find((device) => device.id === preferredId) ||
+    usableDevices.find(
+      (device) => normalizedPreferredName && String(device.name || "").trim().toLocaleLowerCase("de-DE") === normalizedPreferredName,
+    ) ||
+    usableDevices.find((device) => device.is_active) ||
+    null;
+
+  if (!chosen) {
+    const currentDevice = await getCurrentPlaybackDevice();
+    if (currentDevice) {
+      chosen = currentDevice;
+      if (!devices.some((device) => device.id === currentDevice.id)) devices.unshift(currentDevice);
+    }
+  }
+
+  if (chosen) {
+    rememberDevice(chosen.id, chosen.name || preferredName || "");
+    renderDeviceOptions(devices, chosen.id, null);
+    elements.deviceSelect.disabled = false;
+    return chosen.id;
+  }
+
+  renderDeviceOptions(devices, AUTO_DEVICE_VALUE, preferredId ? { id: preferredId, name: preferredName || "Smartphone" } : null);
+  elements.deviceSelect.disabled = false;
+  state.selectedDeviceId = "";
+  return "";
+}
+
+function playerEndpoint(path, deviceId = "") {
+  return deviceId ? `${path}?device_id=${encodeURIComponent(deviceId)}` : path;
+}
+
+async function transferPlayback(deviceId, play = false) {
+  await spotifyFetch("/me/player", {
+    method: "PUT",
+    body: JSON.stringify({ device_ids: [deviceId], play }),
+  });
+}
+
+async function runPlayerCommand(command, { retryDevice = true } = {}) {
+  const tried = new Set();
+  let lastError = null;
+
+  async function tryTarget(deviceId) {
+    const key = deviceId || "__active__";
+    if (tried.has(key)) return { skipped: true };
+    tried.add(key);
+    try {
+      const result = await command(deviceId || "");
+      return { success: true, result };
+    } catch (error) {
+      lastError = error;
+      if (!retryDevice || error?.status !== 404) throw error;
+      return { success: false };
+    }
+  }
+
+  // 1. Explizit ausgewähltes oder zuletzt bekanntes Gerät.
+  if (state.selectedDeviceId) {
+    const first = await tryTarget(state.selectedDeviceId);
+    if (first.success) return first.result;
+  }
+
+  // 2. Wichtigster Android-Rückfall: ohne device_id wird das aktuell aktive
+  // Spotify-Gerät angesprochen. Damit hängt die App nicht von /devices ab.
+  const active = await tryTarget("");
+  if (active.success) return active.result;
+
+  // 3. Erst jetzt Gerätedaten neu abfragen und eine eventuell geänderte ID nutzen.
+  const selectedName =
+    elements.deviceSelect.selectedOptions[0]?.dataset?.deviceName || state.selectedDeviceName || "";
+  const freshDeviceId = await refreshSelectedDevice(state.selectedDeviceId, selectedName);
+  if (freshDeviceId) {
+    await sleep(350);
+    const fresh = await tryTarget(freshDeviceId);
+    if (fresh.success) return fresh.result;
+  }
+
+  const error = new Error(
+    "Spotify hat im Moment keinen aktiven Player für den Befehl. Öffne Spotify nur einmal, starte kurz Musik und kehre dann zu SongSprint zurück. Danach sollte der Automatikmodus weitere Runden ohne erneutes Laden steuern.",
+  );
+  error.status = lastError?.status || 404;
+  throw error;
+}
+
+async function startPlaylist() {
+  const playlistUri = elements.playlistSelect.value;
+  const selectedDeviceValue = elements.deviceSelect.value;
+  const deviceId = selectedDeviceValue && selectedDeviceValue !== AUTO_DEVICE_VALUE
+    ? selectedDeviceValue
+    : "";
+  const selectedDeviceName = elements.deviceSelect.selectedOptions[0]?.dataset?.deviceName || "";
+  const requestedDuration = Number(elements.roundDuration.value);
+
+  if (!playlistUri) {
+    setFeedback("Bitte eine Playlist auswählen.", "error");
+    return;
+  }
+  if (!Number.isFinite(requestedDuration) || requestedDuration < 10 || requestedDuration > 120) {
+    setFeedback("Die Rundendauer muss zwischen 10 und 120 Sekunden liegen.", "error");
+    return;
+  }
+
+  setControlsBusy(true);
+  try {
+    state.duration = Math.round(requestedDuration);
+    state.remaining = state.duration;
+    if (deviceId) {
+      rememberDevice(deviceId, selectedDeviceName);
+    } else {
+      state.selectedDeviceId = "";
+      state.selectedDeviceName = "";
+    }
+    state.selectedPlaylistUri = playlistUri;
+    const selectedOption = elements.playlistSelect.selectedOptions[0];
+    const listedItemCount = Number(selectedOption?.dataset?.itemCount || 0);
+
+    setFeedback("V6.3 bereitet Playlist, Zufall und Android-Automatik vor …");
+    state.playlistTracks = [];
+    state.randomTracks = [];
+    state.randomTrackCursor = 0;
+    state.randomPositions = [];
+    state.randomPositionCursor = 0;
+    state.lastPlayedPosition = -1;
+    state.randomMode = "direct";
+
+    try {
+      state.playlistTracks = await loadPlaylistTracks(playlistUri);
+      state.playlistItemCount = state.playlistTracks.length;
+      state.randomMode = "direct";
+    } catch (error) {
+      if (![403, 404].includes(error?.status)) throw error;
+      if (!Number.isFinite(listedItemCount) || listedItemCount <= 0) {
+        throw new Error("Spotify verrät für diese Playlist keine Songanzahl. Nutze bitte eine eigene Playlist.");
+      }
+      state.playlistItemCount = listedItemCount;
+      state.randomMode = "offset";
+    }
+
+    state.round = 1;
+    state.score = 0;
+    state.guessedThisRound = false;
+    state.running = true;
+    state.paused = false;
+    state.voiceAwaitingGuess = false;
+    state.voiceHandlingStop = false;
+    stopVoiceRecognition("off");
+
+    let previousTrackId = "";
+    try {
+      await updateCurrentTrack();
+      previousTrackId = state.currentTrack?.id || "";
+    } catch {
+      state.currentTrack = null;
+    }
+    state.lastPlayedTrackId = previousTrackId;
+    if (state.randomMode === "direct") {
+      prepareRandomTracks(previousTrackId);
+    } else {
+      prepareRandomPositions(state.playlistItemCount, -1);
+    }
+
+    // Kein separater Transfer-Befehl: Der folgende Play-Aufruf zielt direkt auf
+    // das ausgewählte Gerät. Das ist auf Android zuverlässiger und vermeidet eine
+    // zusätzliche 404-Fehlerquelle.
+    await playNextRandomTrack(previousTrackId);
+
+    document.body.classList.add("game-running");
+    enableGameInputs(true);
+    elements.pauseButton.textContent = "Pausieren";
+    elements.gameStatus.textContent = "Jetzt raten!";
+    elements.mysteryTitle.textContent = "Welcher Song ist das?";
+    elements.mysteryArtist.textContent = "Titel oder Interpret eingeben – du hast nur einen Wertungsversuch.";
+    elements.lastAnswer.textContent = "Noch keine Runde beendet.";
+    if (state.randomMode === "direct") {
+      setFeedback(`V6.5-Zufallsmodus aktiv: ${state.playlistTracks.length} verschiedene Songs wurden direkt geladen und gemischt.`);
+    } else {
+      setFeedback(`V6.5-Kompatibilitätsmodus aktiv: ${state.playlistItemCount} Playlist-Positionen wurden zufällig gemischt.`);
+    }
+    updateStats();
+    startTimer();
+    elements.guessInput.focus();
+    scheduleWakeListening(500);
+  } catch (error) {
+    state.running = false;
+    document.body.classList.remove("game-running");
+    setFeedback(error.message, "error");
+  } finally {
+    setControlsBusy(false);
+  }
+}
+
+async function playNextRandomTrack(previousTrackId = "") {
+  if (state.randomMode === "offset") {
+    return playNextRandomPosition(previousTrackId);
+  }
+
+  if (!state.selectedPlaylistUri || !state.playlistTracks.length) {
+    throw new Error("Keine gültige Playlist für den Zufallsmodus ausgewählt.");
+  }
+
+  const attempts = Math.min(8, Math.max(1, state.playlistTracks.length));
+  let lastError = null;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const track = takeNextRandomTrack(previousTrackId);
+    if (!track) break;
+
+    try {
+      // Den konkreten Track direkt starten. So kann Spotify nicht auf den ersten
+      // Titel oder eine alte Playlist-Warteschlange zurückfallen.
+      await runPlayerCommand((deviceId) =>
+        spotifyFetch(
+          playerEndpoint("/me/player/play", deviceId),
+          {
+            method: "PUT",
+            body: JSON.stringify({
+              uris: [track.uri],
+              position_ms: 0,
+            }),
+          },
+        ),
+      );
+
+      for (let poll = 0; poll < 8; poll += 1) {
+        await sleep(poll === 0 ? 650 : 300);
+        await updateCurrentTrack();
+
+        if (state.currentTrack?.id === track.id || state.currentTrack?.id !== previousTrackId) {
+          state.lastPlayedTrackId = state.currentTrack?.id || track.id;
+          return;
+        }
+      }
+
+      lastError = new Error(`Spotify hat „${track.name}“ noch nicht gestartet.`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error("Es konnte kein zufälliger Song gestartet werden.");
+}
+
+async function playNextRandomPosition(previousTrackId = "") {
+  if (!state.selectedPlaylistUri || state.playlistItemCount <= 0) {
+    throw new Error("Für diese Playlist sind keine zufälligen Positionen verfügbar.");
+  }
+
+  const attempts = Math.min(10, Math.max(1, state.playlistItemCount));
+  let lastError = null;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const position = takeNextRandomPosition(state.lastPlayedPosition);
+    if (!Number.isInteger(position)) break;
+
+    try {
+      await runPlayerCommand((deviceId) =>
+        spotifyFetch(
+          playerEndpoint("/me/player/play", deviceId),
+          {
+            method: "PUT",
+            body: JSON.stringify({
+              context_uri: state.selectedPlaylistUri,
+              offset: { position },
+              position_ms: 0,
+            }),
+          },
+        ),
+      );
+
+      for (let poll = 0; poll < 10; poll += 1) {
+        await sleep(poll === 0 ? 700 : 350);
+        await updateCurrentTrack();
+
+        if (!previousTrackId || state.currentTrack?.id !== previousTrackId) {
+          state.lastPlayedTrackId = state.currentTrack?.id || "";
+          state.lastPlayedPosition = position;
+          return;
+        }
+      }
+
+      lastError = new Error("Spotify hat an dieser Position erneut denselben Song gestartet.");
+    } catch (error) {
+      lastError = error;
+      if (error?.status === 403) throw error;
+    }
+  }
+
+  throw lastError || new Error("Es konnte keine zufällige Playlist-Position gestartet werden.");
+}
+
+function startTimer() {
+  stopTimer();
+  state.roundEndsAt = Date.now() + state.remaining * 1000;
+
+  state.timerId = window.setInterval(async () => {
+    if (!state.running || state.paused || state.busySkipping || state.voiceHandlingStop) return;
+
+    // Nicht einfach Sekunden herunterzählen: Android drosselt Browser-Timer teilweise.
+    // Stattdessen wird die verbleibende Zeit aus der echten Uhrzeit berechnet.
+    const nextRemaining = Math.max(0, Math.ceil((state.roundEndsAt - Date.now()) / 1000));
+    if (nextRemaining !== state.remaining) {
+      state.remaining = nextRemaining;
+      updateStats();
+    }
+
+    if (state.remaining <= 0) await finishRoundAndSkip();
+  }, 250);
+}
+
+function stopTimer() {
+  if (state.timerId) {
+    clearInterval(state.timerId);
+    state.timerId = null;
+  }
+}
+
+async function togglePause() {
+  if (!state.running) return;
+
+  elements.pauseButton.disabled = true;
+  try {
+    if (state.paused) {
+      await runPlayerCommand((deviceId) =>
+        spotifyFetch(playerEndpoint("/me/player/play", deviceId), {
+          method: "PUT",
+        }),
+      );
+      state.paused = false;
+      state.voiceAwaitingGuess = false;
+      state.roundEndsAt = Date.now() + state.remaining * 1000;
+      document.body.classList.add("game-running");
+      elements.pauseButton.textContent = "Pausieren";
+      elements.gameStatus.textContent = "Jetzt raten!";
+      enableGuessing(true);
+      scheduleWakeListening(350);
+    } else {
+      stopVoiceRecognition("off");
+      state.voiceAwaitingGuess = false;
+      state.remaining = Math.max(0, Math.ceil((state.roundEndsAt - Date.now()) / 1000));
+      updateStats();
+      await runPlayerCommand((deviceId) =>
+        spotifyFetch(playerEndpoint("/me/player/pause", deviceId), {
+          method: "PUT",
+        }),
+      );
+      state.paused = true;
+      document.body.classList.remove("game-running");
+      elements.pauseButton.textContent = "Fortsetzen";
+      elements.gameStatus.textContent = "Spiel pausiert";
+      enableGuessing(false);
+      updateVoiceUi();
+    }
+  } catch (error) {
+    setFeedback(error.message, "error");
+  } finally {
+    elements.pauseButton.disabled = false;
+  }
+}
+
+async function finishRoundAndSkip() {
+  if (!state.running || state.busySkipping) return;
+  state.busySkipping = true;
+  stopVoiceRecognition("processing");
+  state.voiceAwaitingGuess = false;
+  enableGuessing(false);
+
+  try {
+    await updateCurrentTrack();
+    const previousTrackId = state.currentTrack?.id || "";
+    revealLastAnswer();
+
+    await playNextRandomTrack(previousTrackId);
+    state.round += 1;
+    state.remaining = state.duration;
+    state.roundEndsAt = Date.now() + state.duration * 1000;
+    state.guessedThisRound = false;
+    state.paused = false;
+    state.voiceAwaitingGuess = false;
+    state.voiceHandlingStop = false;
+    document.body.classList.add("game-running");
+    elements.pauseButton.textContent = "Pausieren";
+    elements.guessInput.value = "";
+    elements.gameStatus.textContent = "Nächste Runde – jetzt raten!";
+    elements.mysteryTitle.textContent = "Welcher Song ist das?";
+    elements.mysteryArtist.textContent = "Titel oder Interpret eingeben – du hast nur einen Wertungsversuch.";
+    setFeedback(
+      state.randomMode === "direct"
+        ? "V6.5: Ein neuer direkt ausgewählter Zufallssong läuft."
+        : "V6.5: Eine neue zufällige Playlist-Position läuft.",
+    );
+    updateStats();
+    enableGuessing(true);
+    elements.guessInput.focus();
+  } catch (error) {
+    setFeedback(error.message, "error");
+    state.paused = true;
+    document.body.classList.remove("game-running");
+    elements.pauseButton.textContent = "Fortsetzen";
+  } finally {
+    state.busySkipping = false;
+    if (state.running && !state.paused) scheduleWakeListening(450);
+    updateVoiceUi();
+  }
+}
+
+async function updateCurrentTrack() {
+  const playback = await spotifyFetch("/me/player/currently-playing");
+  const item = playback?.item;
+  if (!item || item.type !== "track") {
+    state.currentTrack = null;
+    throw new Error("Aktuell läuft kein Musik-Track. Starte die Playlist erneut.");
+  }
+
+  state.currentTrack = {
+    id: item.id,
+    name: item.name,
+    artists: (item.artists || []).map((artist) => artist.name),
+  };
+}
+
+function revealLastAnswer() {
+  if (!state.currentTrack) {
+    elements.lastAnswer.textContent = "Unbekannter Titel";
+    return;
+  }
+  elements.lastAnswer.textContent = `${state.currentTrack.name} — ${state.currentTrack.artists.join(", ")}`;
+}
+
+async function submitGuess(event) {
+  event.preventDefault();
+  const canGuess = state.running && !state.guessedThisRound && (!state.paused || state.voiceAwaitingGuess);
+  if (!canGuess) return;
+
+  const guess = elements.guessInput.value.trim();
+  if (!guess) {
+    setFeedback("Bitte einen Songtitel oder Interpreten eingeben.", "error");
+    return;
+  }
+
+  await evaluateGuess(guess, {
+    autoAdvance: state.voiceAwaitingGuess,
+    source: state.voiceAwaitingGuess ? "manual-after-stop" : "manual",
+  });
+}
+
+async function evaluateGuess(guess, { autoAdvance = false, source = "manual" } = {}) {
+  const canGuess = state.running && !state.guessedThisRound && (!state.paused || state.voiceAwaitingGuess);
+  if (!canGuess || !guess?.trim()) return;
+
+  stopVoiceRecognition("processing");
+  try {
+    await updateCurrentTrack();
+    state.guessedThisRound = true;
+    enableGuessing(false);
+
+    const normalizedGuess = normalize(guess);
+    const title = normalize(state.currentTrack.name);
+    const artists = state.currentTrack.artists.map(normalize);
+    const titleMatch = isReasonableMatch(normalizedGuess, title);
+    const artistMatch = artists.some((artist) => isReasonableMatch(normalizedGuess, artist));
+    const correct = titleMatch || artistMatch;
+
+    if (correct) {
+      state.score += 1;
+      setFeedback(
+        source === "voice"
+          ? `Verstanden: „${guess}“ – richtig! +1 Punkt. Der nächste Song startet.`
+          : "Richtig! +1 Punkt. Der nächste Song startet.",
+        "correct",
+      );
+      updateStats();
+      revealLastAnswer();
+      elements.gameStatus.textContent = "Richtig – der nächste Song startet!";
+      await sleep(900);
+      await finishRoundAndSkip();
+      return;
+    }
+
+    setFeedback(
+      source === "voice"
+        ? `Verstanden: „${guess}“ – leider weder Titel noch Künstler. Der Song läuft bis zum Zeitlimit weiter.`
+        : "Leider nicht richtig. Der Song läuft bis zum Zeitlimit weiter.",
+      "wrong",
+    );
+    elements.gameStatus.textContent = "Nicht richtig – der Song läuft bis zum Zeitlimit weiter.";
+    updateStats();
+
+    // Nach „Stopp & sprechen“ ist Spotify pausiert. Bei einer falschen
+    // Antwort wird derselbe Song fortgesetzt und der Countdown läuft mit
+    // der zuvor gespeicherten Restzeit weiter. Der Wertungsversuch bleibt
+    // verbraucht; beim Zeitlimit folgt wie gewohnt der nächste Zufallssong.
+    if (state.paused && state.voiceAwaitingGuess) {
+      await runPlayerCommand((deviceId) =>
+        spotifyFetch(playerEndpoint("/me/player/play", deviceId), {
+          method: "PUT",
+        }),
+      );
+      state.paused = false;
+      state.voiceAwaitingGuess = false;
+      state.voiceHandlingStop = false;
+      state.voiceMode = "off";
+      state.roundEndsAt = Date.now() + state.remaining * 1000;
+      document.body.classList.add("game-running");
+      elements.pauseButton.textContent = "Pausieren";
+      elements.guessInput.value = "";
+    }
+
+    updateVoiceUi();
+  } catch (error) {
+    setFeedback(error.message, "error");
+    state.guessedThisRound = false;
+    enableGuessing(true);
+    if (state.voiceAwaitingGuess) {
+      state.voiceMode = "awaiting";
+      updateVoiceUi();
+    } else {
+      scheduleWakeListening();
+    }
+  }
+}
+
+function normalize(value) {
+  return value
+    .toLocaleLowerCase("de-DE")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\([^)]*\)|\[[^\]]*\]/g, " ")
+    .replace(/\b(feat|ft|featuring|remaster(ed)?|radio edit|live|version)\b/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function isReasonableMatch(guess, answer) {
+  if (!guess || !answer) return false;
+  if (guess === answer) return true;
+
+  const compactGuess = guess.replace(/\s+/g, "");
+  const compactAnswer = answer.replace(/\s+/g, "");
+  if (compactGuess === compactAnswer) return true;
+  if (compactGuess.length >= 4 && compactAnswer.includes(compactGuess)) return true;
+  if (compactAnswer.length >= 4 && compactGuess.includes(compactAnswer)) return true;
+
+  if (guess.length >= 4 && answer.includes(guess)) return true;
+  if (answer.length >= 4 && guess.includes(answer)) return true;
+
+  const guessWords = new Set(guess.split(" ").filter((word) => word.length > 2));
+  const answerWords = answer.split(" ").filter((word) => word.length > 2);
+  if (!guessWords.size || !answerWords.length) return false;
+  const matches = answerWords.filter((word) => guessWords.has(word)).length;
+  return matches / answerWords.length >= 0.75;
+}
+
+function updateStats() {
+  elements.roundNumber.textContent = String(state.round);
+  elements.score.textContent = String(state.score);
+  elements.countdown.textContent = String(Math.max(0, state.remaining));
+  const percent = state.duration ? (Math.max(0, state.remaining) / state.duration) * 100 : 100;
+  elements.timerProgress.style.width = `${percent}%`;
+}
+
+function enableGameInputs(enabled) {
+  elements.pauseButton.disabled = !enabled;
+  elements.nextButton.disabled = !enabled;
+  elements.resetButton.disabled = !enabled;
+  enableGuessing(enabled);
+}
+
+function enableGuessing(enabled) {
+  const active = enabled && state.running && (!state.paused || state.voiceAwaitingGuess) && !state.guessedThisRound;
+  elements.guessInput.disabled = !active;
+  elements.guessButton.disabled = !active;
+}
+
+function setControlsBusy(busy) {
+  elements.startButton.disabled = busy;
+  elements.playlistSelect.disabled = busy;
+  elements.deviceSelect.disabled = busy;
+  elements.refreshButton.disabled = busy;
+}
+
+function resetGame() {
+  stopTimer();
+  stopVoiceRecognition("off");
+  Object.assign(state, {
+    running: false,
+    paused: false,
+    round: 0,
+    score: 0,
+    currentTrack: null,
+    guessedThisRound: false,
+    selectedPlaylistUri: "",
+    playlistItemCount: 0,
+    playlistTracks: [],
+    randomTracks: [],
+    randomTrackCursor: 0,
+    randomPositions: [],
+    randomPositionCursor: 0,
+    randomMode: "direct",
+    lastPlayedTrackId: "",
+    lastPlayedPosition: -1,
+    busySkipping: false,
+    roundEndsAt: 0,
+    voiceMode: "off",
+    voiceRecognition: null,
+    voiceRestartTimer: null,
+    voiceAwaitingGuess: false,
+    voiceHandlingStop: false,
+    voiceLastTranscript: "",
+  });
+  state.duration = clampDuration(Number(elements.roundDuration.value));
+  state.remaining = state.duration;
+  document.body.classList.remove("game-running");
+  enableGameInputs(false);
+  elements.pauseButton.textContent = "Pausieren";
+  elements.gameStatus.textContent = "Wähle Playlist und Gerät.";
+  elements.mysteryTitle.textContent = "Welcher Song ist das?";
+  elements.mysteryArtist.textContent = "Titel und Interpret bleiben bis zur Auflösung verborgen.";
+  elements.guessInput.value = "";
+  elements.lastAnswer.textContent = "Noch keine Runde beendet.";
+  setFeedback("");
+  updateStats();
+  updateVoiceUi();
+}
+
+function clampDuration(value) {
+  if (!Number.isFinite(value)) return 30;
+  return Math.min(120, Math.max(10, Math.round(value)));
+}
+
+function setFeedback(message, type = "") {
+  for (const target of [elements.feedback, elements.setupFeedback]) {
+    target.textContent = message;
+    target.className = "feedback";
+    if (type) target.classList.add(`feedback--${type}`);
+  }
+}
+
+function setConnected(connected) {
+  elements.setupPanel.classList.toggle("hidden", connected);
+  elements.gamePanel.classList.toggle("hidden", !connected);
+  elements.connectionBadge.textContent = connected ? "Spotify verbunden" : "Nicht verbunden";
+  elements.connectionBadge.className = connected
+    ? "badge badge--online"
+    : "badge badge--offline";
+}
+
+function clearAuth() {
+  for (const key of ["access_token", "refresh_token", "expires_at"]) {
+    localStorage.removeItem(`${STORAGE_PREFIX}${key}`);
+  }
+  state.accessToken = "";
+  state.refreshToken = "";
+  state.expiresAt = 0;
+  resetGame();
+  setConnected(false);
+}
+
+function logout() {
+  clearAuth();
+  setFeedback("Du wurdest lokal abgemeldet.");
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function init() {
+  updateVoiceUi();
+  setFeedback("Geladen: SongSprint V6.5 Beta · Richtig = weiter");
+  try {
+    await handleOAuthCallback();
+    if (state.accessToken) {
+      setConnected(true);
+      await getAccessToken();
+      await loadSpotifyData();
+      resetGame();
+    } else {
+      setConnected(false);
+      updateStats();
+    }
+  } catch (error) {
+    clearAuth();
+    setFeedback(error.message, "error");
+  }
+}
+
+elements.loginButton.addEventListener("click", beginLogin);
+elements.logoutButton.addEventListener("click", logout);
+elements.refreshButton.addEventListener("click", async () => {
+  elements.refreshButton.disabled = true;
+  try {
+    await loadSpotifyData();
+    setFeedback("Playlists und Geräte wurden aktualisiert.");
+  } catch (error) {
+    setFeedback(error.message, "error");
+  } finally {
+    elements.refreshButton.disabled = false;
+  }
+});
+elements.deviceSelect.addEventListener("change", () => {
+  const value = elements.deviceSelect.value;
+  const name = elements.deviceSelect.selectedOptions[0]?.dataset?.deviceName || "";
+  if (value && value !== AUTO_DEVICE_VALUE) {
+    rememberDevice(value, name);
+  } else {
+    state.selectedDeviceId = "";
+    state.selectedDeviceName = "";
+  }
+});
+elements.startButton.addEventListener("click", startPlaylist);
+elements.pauseButton.addEventListener("click", togglePause);
+elements.voiceToggleButton.addEventListener("click", toggleVoiceMode);
+elements.voiceGuessButton.addEventListener("click", handleVoiceButtonClick);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    stopVoiceRecognition("off");
+    return;
+  }
+
+  if (state.running && !state.paused && !state.busySkipping) {
+    state.remaining = Math.max(0, Math.ceil((state.roundEndsAt - Date.now()) / 1000));
+    updateStats();
+    if (state.remaining <= 0) {
+      finishRoundAndSkip();
+    } else {
+      scheduleWakeListening(500);
+    }
+  } else {
+    updateVoiceUi();
+  }
+});
+
+elements.nextButton.addEventListener("click", finishRoundAndSkip);
+elements.resetButton.addEventListener("click", resetGame);
+elements.guessForm.addEventListener("submit", submitGuess);
+elements.roundDuration.addEventListener("change", () => {
+  if (!state.running) {
+    state.duration = clampDuration(Number(elements.roundDuration.value));
+    elements.roundDuration.value = String(state.duration);
+    state.remaining = state.duration;
+    updateStats();
+  }
+});
+
+init();
+
+    </script>
+  </body>
+</html>
